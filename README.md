@@ -1,200 +1,301 @@
-# Frigate Archive
+<div align="center">
 
-> A safe, automated archiving solution for Frigate that moves recordings to long-term storage, verifies every transfer, and keeps Frigate's database synchronized.
+# 📦 Frigate Archive
 
----
+### Safe Automated Archiving for Frigate running on Unraid
 
-## Overview
-
-Frigate Archive is a modular archive management system designed specifically for **Frigate NVR** running on **Unraid**.
-
-Unlike simple backup scripts that only copy recordings, Frigate Archive was built with one primary goal:
-
-**Never sacrifice data integrity for automation.**
-
-Every archive operation is verified before recordings are removed, and Frigate's database is automatically synchronized so archived recordings never leave stale database entries behind.
-
-The result is an archive system that can safely run unattended while protecting both your recordings and your Frigate installation.
+Automatically archive completed Frigate recordings to long-term storage while keeping the Frigate database synchronized.
 
 ---
 
-# Features
+![Platform](https://img.shields.io/badge/Platform-Unraid-red)
+![Frigate](https://img.shields.io/badge/Frigate-0.17+-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Shell](https://img.shields.io/badge/Bash-5.x-yellow)
+![Status](https://img.shields.io/badge/Status-Production_Ready-brightgreen)
 
-✔ Intelligent archive scheduling based on disk usage
+</div>
 
-✔ Archives only completed recording days
+---
 
-✔ High-performance `rsync` transfers
+# Overview
 
-✔ Automatic transfer verification
+Frigate Archive is a production-tested archive system designed specifically for **Frigate running on Unraid**.
 
-✔ Automatic source cleanup after successful verification
+It automatically moves completed recordings from fast recording storage to long-term archive storage while safely maintaining the Frigate SQLite database.
 
-✔ Frigate database synchronization
-
-✔ Automatic database backup creation
-
-✔ Automatic database backup retention
-
-✔ SQLite VACUUM optimization
-
-✔ Lock file protection
-
-✔ Comprehensive logging
-
-✔ Configurable archive thresholds
-
-✔ Test mode for safe validation
-
-✔ Modular architecture
+Unlike simple file-copy scripts, Frigate Archive performs integrity verification before removing recordings and keeps Frigate's database synchronized throughout the process.
 
 ---
 
 # Why Frigate Archive?
 
-Frigate can generate hundreds of gigabytes of recordings very quickly.
+As Frigate installations grow, recording drives eventually fill up.
 
-Many users want to:
+Many users manually move recordings to another disk, but doing so often leaves:
 
-- Keep recent recordings on fast local storage.
-- Move older recordings to large-capacity storage.
-- Avoid filling SSDs.
-- Preserve Frigate's database integrity.
+- orphaned database records
+- incorrect storage statistics
+- broken timeline entries
+- missing previews
+- inconsistent recording history
 
-Frigate Archive automates this process while ensuring recordings are never deleted until they have been successfully verified in the archive.
+Frigate Archive automates the entire process safely.
+
+---
+
+# Features
+
+## Archive Engine
+
+- ✅ Automatic archive based on storage usage
+- ✅ Configurable archive thresholds
+- ✅ Safe rsync transfers
+- ✅ Existing archive detection
+- ✅ Archive verification
+- ✅ Automatic cleanup of source recordings
+
+---
+
+## Database Management
+
+- ✅ SQLite database backup
+- ✅ Automatic cleanup
+- ✅ Transaction protection
+- ✅ VACUUM optimization
+- ✅ Verification after cleanup
+
+---
+
+## Safety
+
+- ✅ Verification before deleting recordings
+- ✅ Automatic rollback on failure
+- ✅ Lock file protection
+- ✅ Test Mode
+- ✅ Production tested
+
+---
+
+## Utilities
+
+- ✅ Installer
+- ✅ Uninstaller
+- ✅ Health Check
+- ✅ Configuration template
+- ✅ Detailed logging
 
 ---
 
 # How It Works
 
-```
-Recording Drive
-        │
-        ▼
-Check Drive Usage
-        │
-        ▼
-Find Oldest Complete Recording Day
-        │
-        ▼
-Verify Existing Archive (if present)
-        │
-        ▼
-Transfer using rsync
-        │
-        ▼
-Verify Transfer
-        │
-        ▼
-Delete Source Recordings
-        │
-        ▼
-Synchronize Frigate Database
-        │
-        ▼
-Create Database Backup
-        │
-        ▼
-Prune Old Database Backups
-        │
-        ▼
-Complete
+```text
+Frigate Recording Drive
+          │
+          ▼
+Completed Recording Day
+          │
+          ▼
+Archive Verification
+          │
+          ▼
+Safe rsync Transfer
+          │
+          ▼
+Integrity Verification
+          │
+          ▼
+Database Cleanup
+          │
+          ▼
+Remove Original Recordings
+          │
+          ▼
+Archive Complete
 ```
 
 ---
 
-# Requirements
+# Installation
 
-- Unraid 7.x or later
-- Frigate Docker container
-- rsync
-- Docker
-- Python 3 (via container)
+Clone the repository:
+
+```bash
+git clone https://github.com/JWMutant/frigate-archive.git
+```
+
+Move into the project:
+
+```bash
+cd frigate-archive
+```
+
+Run the installer:
+
+```bash
+bash install.sh
+```
+
+---
+
+# Configuration
+
+Copy the example configuration if required:
+
+```bash
+cp config.conf.example config.conf
+```
+
+Edit:
+
+```bash
+nano config.conf
+```
+
+Configure:
+
+- Recording location
+- Archive location
+- Frigate container
+- Database location
+- Archive thresholds
+
+---
+
+# First Run
+
+Leave:
+
+```bash
+TEST_MODE=true
+```
+
+Run:
+
+```bash
+bash archive.sh
+```
+
+Review the output.
+
+Once satisfied:
+
+```bash
+TEST_MODE=false
+```
+
+---
+
+# Health Check
+
+Validate the installation at any time:
+
+```bash
+bash healthcheck.sh
+```
+
+Example:
+
+```text
+Overall Status: HEALTHY
+```
+
+---
+
+# Safety Guarantees
+
+Frigate Archive never removes recordings until:
+
+- Archive transfer completes successfully
+- Verification confirms all files exist
+- Database cleanup succeeds
+- SQLite transaction commits successfully
+
+If any stage fails, the archive process stops immediately.
+
+---
+
+# Tested On
+
+- Unraid 7.3.1
+- Frigate 0.17.x
+- NVIDIA GPU
+- Multiple cameras
+- Production recording environments
+- Existing archive destinations
+- Fresh archive destinations
 
 ---
 
 # Project Structure
 
-```
+```text
 frigate-archive/
-│
+
 ├── archive.sh
-├── config.conf
-├── README.md
-├── CHANGELOG.md
+├── install.sh
+├── uninstall.sh
+├── healthcheck.sh
+├── VERSION
 ├── LICENSE
-│
-├── backups/
-├── logs/
-│
+├── CHANGELOG.md
+├── README.md
+├── config.conf.example
 └── modules/
-    ├── archive.sh
-    ├── checks.sh
-    ├── database_cleanup.sh
-    ├── logging.sh
-    ├── notifications.sh
-    ├── notify.sh
-    ├── transfer.sh
-    ├── utils.sh
-    └── verify.sh
 ```
 
 ---
 
-# Current Features
+# Roadmap
 
-Version **2.0.0**
+## Completed
 
-- Automated archive management
-- Safe rsync transfers
-- Archive verification
-- Database synchronization
-- Database backup rotation
-- Lock file protection
-- Configurable thresholds
-- Comprehensive logging
+- [x] Safe archive engine
+- [x] Verification
+- [x] Database cleanup
+- [x] Installer
+- [x] Uninstaller
+- [x] Health Check
+- [x] GitHub Releases
+- [x] Centralized version management
 
----
+## Planned
 
-# Future Roadmap
-
-## Version 2.1
-
-- Improved notifications
-- Enhanced reporting
-- Additional archive statistics
-
-## Version 2.2
-
-- Installer
-- Uninstaller
-- Configuration validation
-
-## Version 3.0
-
-- Web interface
-- Multiple archive destinations
-- Compression support
-- Archive indexing
+- [ ] Restore utility
+- [ ] Email notifications
+- [ ] Discord notifications
+- [ ] Multi-destination archive
+- [ ] GitHub Actions
+- [ ] Configuration validation wizard
 
 ---
 
 # Contributing
 
-Contributions, ideas, feature requests and bug reports are welcome.
+Issues, bug reports and feature requests are welcome.
 
-Please open an Issue or submit a Pull Request.
+If you find a problem, please open a GitHub Issue.
+
+Pull requests are also welcome.
 
 ---
 
 # License
 
-This project will be released under the MIT License.
+Released under the MIT License.
 
 ---
 
 # Acknowledgements
 
-Developed for the Frigate and Unraid communities.
+Frigate Archive was developed and tested on a live Unraid server running Frigate.
 
-Special thanks to everyone who tests, reports bugs and contributes ideas that help improve the project.
+The project was built with a focus on reliability, recoverability and safe long-term storage management.
+
+---
+
+<div align="center">
+
+### ⭐ If Frigate Archive has been useful, please consider starring the repository!
+
+</div>
