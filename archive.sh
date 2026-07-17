@@ -1,9 +1,18 @@
 #!/bin/bash
 
-############################################
-# Frigate Archive V2.0
-# Main Controller
-############################################
+
+############################################################
+#
+# Frigate Archive
+#
+# Version : 2.0.0
+# Author  : Jonathan Dalcin
+# License : MIT
+#
+# Description:
+# Main controller for the Frigate Archive system.
+#
+############################################################
 
 BASE="/boot/config/custom/frigate-archive"
 
