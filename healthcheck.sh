@@ -4,7 +4,6 @@
 #
 # Frigate Archive Health Check
 #
-# Version : 2.1.0
 # Author  : Jonathan Dalcin
 # License : MIT
 #
@@ -13,18 +12,38 @@
 set -u
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VERSION_FILE="$PROJECT_DIR/VERSION"
 CONFIG_FILE="$PROJECT_DIR/config.conf"
 MODULE_DIR="$PROJECT_DIR/modules"
+
+############################################################
+# Load version
+############################################################
+
+if [ -f "$VERSION_FILE" ]; then
+    VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
+
+    if [ -z "$VERSION" ]; then
+        VERSION="unknown"
+    fi
+else
+    VERSION="unknown"
+fi
 
 PASS_COUNT=0
 WARN_COUNT=0
 FAIL_COUNT=0
+
+############################################################
+# Output functions
+############################################################
 
 print_header()
 {
     echo
     echo "============================================================"
     echo " Frigate Archive Health Check"
+    echo " Version $VERSION"
     echo "============================================================"
     echo
 }
@@ -53,6 +72,10 @@ fail()
     echo "[FAIL] $1"
     FAIL_COUNT=$((FAIL_COUNT + 1))
 }
+
+############################################################
+# General check functions
+############################################################
 
 check_command()
 {
@@ -158,7 +181,11 @@ section "Platform"
 if [ -f /etc/unraid-version ]; then
     pass "Unraid detected"
 
-    UNRAID_VERSION=$(awk -F= '/^version=/{gsub(/"/,"",$2); print $2}' /etc/unraid-version)
+    UNRAID_VERSION=$(
+        awk -F= \
+            '/^version=/{gsub(/"/,"",$2); print $2}' \
+            /etc/unraid-version
+    )
 
     if [ -n "${UNRAID_VERSION:-}" ]; then
         echo "       Version: $UNRAID_VERSION"
@@ -190,6 +217,7 @@ check_command sort
 check_command date
 check_command du
 check_command df
+check_command tr
 
 ############################################################
 # Project files
@@ -201,10 +229,23 @@ check_file "$PROJECT_DIR/archive.sh" "Main archive controller"
 check_file "$PROJECT_DIR/install.sh" "Installer"
 check_file "$PROJECT_DIR/uninstall.sh" "Uninstaller"
 check_file "$PROJECT_DIR/healthcheck.sh" "Health check utility"
+check_file "$VERSION_FILE" "VERSION file"
 check_file "$PROJECT_DIR/config.conf.example" "Example configuration"
 check_file "$PROJECT_DIR/README.md" "README"
 check_file "$PROJECT_DIR/CHANGELOG.md" "Changelog"
 check_file "$PROJECT_DIR/LICENSE" "License"
+
+if [ -f "$VERSION_FILE" ]; then
+
+    if [ "$VERSION" = "unknown" ]; then
+        fail "VERSION file is empty"
+    elif [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        pass "Project version is valid: $VERSION"
+    else
+        warn "Project version does not use MAJOR.MINOR.PATCH format: $VERSION"
+    fi
+
+fi
 
 check_directory "$MODULE_DIR" "Modules directory"
 
@@ -301,27 +342,41 @@ else
            [ "$START_THRESHOLD" -le 100 ] &&
            [ "$STOP_THRESHOLD" -ge 0 ] &&
            [ "$STOP_THRESHOLD" -le 99 ]; then
+
             pass "Archive thresholds are within valid percentage ranges"
+
         else
+
             fail "Archive thresholds must be between 0 and 100"
+
         fi
 
     else
+
         fail "Archive thresholds must contain whole numbers"
+
     fi
 
     if [[ "${DB_BACKUP_KEEP:-}" =~ ^[0-9]+$ ]] &&
        [ "$DB_BACKUP_KEEP" -ge 1 ]; then
+
         pass "DB_BACKUP_KEEP is valid"
+
     else
+
         fail "DB_BACKUP_KEEP must be a positive whole number"
+
     fi
 
     if [[ "${KEEP_LOGS:-}" =~ ^[0-9]+$ ]] &&
        [ "$KEEP_LOGS" -ge 1 ]; then
+
         pass "KEEP_LOGS is valid"
+
     else
+
         fail "KEEP_LOGS must be a positive whole number"
+
     fi
 
     case "${TEST_MODE:-}" in
@@ -351,8 +406,12 @@ if [ -n "${CONTAINER:-}" ]; then
 
         pass "Frigate container exists: $CONTAINER"
 
-        CONTAINER_STATE=$(docker inspect \
-            -f '{{.State.Status}}' "$CONTAINER" 2>/dev/null)
+        CONTAINER_STATE=$(
+            docker inspect \
+                -f '{{.State.Status}}' \
+                "$CONTAINER" \
+                2>/dev/null
+        )
 
         if [ "$CONTAINER_STATE" = "running" ]; then
             pass "Frigate container is running"
@@ -361,7 +420,9 @@ if [ -n "${CONTAINER:-}" ]; then
         fi
 
     else
+
         fail "Frigate container not found: $CONTAINER"
+
     fi
 
 fi
@@ -369,12 +430,17 @@ fi
 if [ -n "${FRIGATE_DB:-}" ]; then
 
     if [ -f "$FRIGATE_DB" ]; then
+
         pass "Frigate database found"
 
         DB_SIZE=$(du -h "$FRIGATE_DB" | awk '{print $1}')
+
         echo "       Size: $DB_SIZE"
+
     else
+
         fail "Frigate database missing: $FRIGATE_DB"
+
     fi
 
 fi
@@ -391,15 +457,20 @@ if [ -n "${SOURCE:-}" ]; then
 
     if [ -d "$SOURCE" ]; then
 
-        SOURCE_USAGE=$(df -P "$SOURCE" |
-            awk 'NR==2 {gsub("%","",$5); print $5}')
+        SOURCE_USAGE=$(
+            df -P "$SOURCE" |
+            awk 'NR==2 {gsub("%","",$5); print $5}'
+        )
 
-        SOURCE_FREE=$(df -hP "$SOURCE" |
-            awk 'NR==2 {print $4}')
+        SOURCE_FREE=$(
+            df -hP "$SOURCE" |
+            awk 'NR==2 {print $4}'
+        )
 
         pass "Recording path is accessible"
         echo "       Usage: ${SOURCE_USAGE}%"
         echo "       Free : $SOURCE_FREE"
+
     fi
 
 fi
@@ -410,10 +481,13 @@ if [ -n "${ARCHIVE:-}" ]; then
 
     if [ -d "$ARCHIVE" ]; then
 
-        ARCHIVE_FREE=$(df -hP "$ARCHIVE" |
-            awk 'NR==2 {print $4}')
+        ARCHIVE_FREE=$(
+            df -hP "$ARCHIVE" |
+            awk 'NR==2 {print $4}'
+        )
 
         echo "       Free : $ARCHIVE_FREE"
+
     fi
 
 fi
@@ -423,7 +497,9 @@ if [ -n "${LOG_DIR:-}" ]; then
 fi
 
 if [ -d "$PROJECT_DIR/backups" ]; then
-    check_writable_directory "$PROJECT_DIR/backups" "Project backup directory"
+    check_writable_directory \
+        "$PROJECT_DIR/backups" \
+        "Project backup directory"
 else
     warn "Project backup directory does not exist"
 fi
@@ -435,9 +511,12 @@ fi
 section "Script Access"
 
 if [[ "$PROJECT_DIR" == /boot/* ]]; then
+
     pass "Project is stored on the Unraid FAT boot filesystem"
+
     echo "       Linux executable bits are not supported on /boot."
     echo "       Scripts should be launched with: bash script-name.sh"
+
 fi
 
 SCRIPT_FILES=(
@@ -467,7 +546,12 @@ if [ -n "${LOCKFILE:-}" ]; then
 
     if [ -f "$LOCKFILE" ]; then
 
-        LOCK_PID=$(awk -F= '/^PID=/{print $2}' "$LOCKFILE" 2>/dev/null)
+        LOCK_PID=$(
+            awk -F= \
+                '/^PID=/{print $2}' \
+                "$LOCKFILE" \
+                2>/dev/null
+        )
 
         if [ -n "$LOCK_PID" ] &&
            kill -0 "$LOCK_PID" 2>/dev/null; then
@@ -488,11 +572,14 @@ if [ -n "${LOCKFILE:-}" ]; then
 
 fi
 
-TEMP_FILES=$(find /tmp \
-    -maxdepth 1 \
-    -type f \
-    -name 'frigate_cleanup_*.py' 2>/dev/null |
-    wc -l)
+TEMP_FILES=$(
+    find /tmp \
+        -maxdepth 1 \
+        -type f \
+        -name 'frigate_cleanup_*.py' \
+        2>/dev/null |
+    wc -l
+)
 
 if [ "$TEMP_FILES" -eq 0 ]; then
     pass "No stale cleanup scripts found in /tmp"
@@ -510,25 +597,36 @@ if command -v git >/dev/null 2>&1; then
 
     pass "Git is available"
 
-    if git -C "$PROJECT_DIR" rev-parse \
-       --is-inside-work-tree >/dev/null 2>&1; then
+    if git -C "$PROJECT_DIR" \
+       rev-parse --is-inside-work-tree \
+       >/dev/null 2>&1; then
 
         pass "Project is inside a Git repository"
 
-        CURRENT_BRANCH=$(git -C "$PROJECT_DIR" \
-            branch --show-current 2>/dev/null)
+        CURRENT_BRANCH=$(
+            git -C "$PROJECT_DIR" \
+                branch --show-current \
+                2>/dev/null
+        )
 
-        CURRENT_COMMIT=$(git -C "$PROJECT_DIR" \
-            rev-parse --short HEAD 2>/dev/null)
+        CURRENT_COMMIT=$(
+            git -C "$PROJECT_DIR" \
+                rev-parse --short HEAD \
+                2>/dev/null
+        )
 
-        CURRENT_TAG=$(git -C "$PROJECT_DIR" \
-            describe --tags --exact-match 2>/dev/null || true)
+        CURRENT_TAG=$(
+            git -C "$PROJECT_DIR" \
+                describe --tags --exact-match \
+                2>/dev/null ||
+            true
+        )
 
-        echo "       Branch: ${CURRENT_BRANCH:-unknown}"
-        echo "       Commit: ${CURRENT_COMMIT:-unknown}"
+        echo "       Branch : ${CURRENT_BRANCH:-unknown}"
+        echo "       Commit : ${CURRENT_COMMIT:-unknown}"
 
         if [ -n "$CURRENT_TAG" ]; then
-            echo "       Tag   : $CURRENT_TAG"
+            echo "       Tag    : $CURRENT_TAG"
         fi
 
         if [ -z "$(git -C "$PROJECT_DIR" status --porcelain)" ]; then
@@ -538,11 +636,15 @@ if command -v git >/dev/null 2>&1; then
         fi
 
     else
+
         warn "Project is not inside a Git repository"
+
     fi
 
 else
+
     warn "Git is not available"
+
 fi
 
 ############################################################
@@ -551,6 +653,8 @@ fi
 
 section "Summary"
 
+echo "Project : Frigate Archive"
+echo "Version : $VERSION"
 echo "Passed  : $PASS_COUNT"
 echo "Warnings: $WARN_COUNT"
 echo "Failed  : $FAIL_COUNT"
@@ -560,18 +664,21 @@ if [ "$FAIL_COUNT" -gt 0 ]; then
 
     echo "Overall Status: UNHEALTHY"
     echo
+
     exit 1
 
 elif [ "$WARN_COUNT" -gt 0 ]; then
 
     echo "Overall Status: HEALTHY WITH WARNINGS"
     echo
+
     exit 0
 
 else
 
     echo "Overall Status: HEALTHY"
     echo
+
     exit 0
 
 fi

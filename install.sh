@@ -4,7 +4,7 @@
 #
 # Frigate Archive Installer
 #
-# Version : 2.0.0
+# Author  : Jonathan Dalcin
 # License : MIT
 #
 ############################################################
@@ -12,16 +12,27 @@
 set -u
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VERSION_FILE="$PROJECT_DIR/VERSION"
 CONFIG_EXAMPLE="$PROJECT_DIR/config.conf.example"
 CONFIG_FILE="$PROJECT_DIR/config.conf"
 LOG_DIR="$PROJECT_DIR/logs"
 BACKUP_DIR="$PROJECT_DIR/backups"
 MODULE_DIR="$PROJECT_DIR/modules"
 
+############################################################
+# Load version
+############################################################
+
+if [ -f "$VERSION_FILE" ]; then
+    VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
+else
+    VERSION="unknown"
+fi
+
 echo
 echo "============================================================"
 echo " Frigate Archive Installer"
-echo " Version 2.0.0"
+echo " Version $VERSION"
 echo "============================================================"
 echo
 
@@ -87,6 +98,9 @@ pass "Required commands are available."
 [ -f "$PROJECT_DIR/archive.sh" ] ||
     fail "archive.sh is missing."
 
+[ -f "$VERSION_FILE" ] ||
+    fail "VERSION file is missing."
+
 [ -f "$CONFIG_EXAMPLE" ] ||
     fail "config.conf.example is missing."
 
@@ -94,6 +108,7 @@ pass "Required commands are available."
     fail "modules directory is missing."
 
 pass "Project files found."
+pass "Project version detected: $VERSION"
 
 ############################################################
 # Create runtime directories
@@ -139,22 +154,32 @@ find "$PROJECT_DIR" \
 pass "Line endings normalized."
 
 ############################################################
-# Set permissions
+# Set permissions where supported
 ############################################################
 
-chmod +x "$PROJECT_DIR/archive.sh" ||
-    fail "Unable to make archive.sh executable."
+chmod +x "$PROJECT_DIR/archive.sh" 2>/dev/null || true
+chmod +x "$PROJECT_DIR/install.sh" 2>/dev/null || true
 
-chmod +x "$PROJECT_DIR/install.sh" ||
-    fail "Unable to make install.sh executable."
+if [ -f "$PROJECT_DIR/uninstall.sh" ]; then
+    chmod +x "$PROJECT_DIR/uninstall.sh" 2>/dev/null || true
+fi
+
+if [ -f "$PROJECT_DIR/healthcheck.sh" ]; then
+    chmod +x "$PROJECT_DIR/healthcheck.sh" 2>/dev/null || true
+fi
 
 find "$MODULE_DIR" \
     -maxdepth 1 \
     -type f \
     -name "*.sh" \
-    -exec chmod +x {} \;
+    -exec chmod +x {} \; 2>/dev/null || true
 
-pass "Script permissions set."
+if [[ "$PROJECT_DIR" == /boot/* ]]; then
+    note "Project is stored on the Unraid FAT boot filesystem."
+    note "Use 'bash script-name.sh' to run project scripts."
+else
+    pass "Script permissions set."
+fi
 
 ############################################################
 # Validate shell syntax
@@ -255,6 +280,7 @@ fi
 echo
 echo "============================================================"
 echo " Installation complete"
+echo " Frigate Archive $VERSION"
 echo "============================================================"
 echo
 echo "Next steps:"
@@ -264,14 +290,17 @@ echo "   nano $CONFIG_FILE"
 echo
 echo "2. Keep TEST_MODE=true for the first test."
 echo
-echo "3. Run the archive manually:"
+echo "3. Run the health check:"
+echo "   bash $PROJECT_DIR/healthcheck.sh"
+echo
+echo "4. Run the archive manually:"
 echo "   bash $PROJECT_DIR/archive.sh"
 echo
-echo "4. Review the output and logs."
+echo "5. Review the output and logs."
 echo
-echo "5. When satisfied, set TEST_MODE=false."
+echo "6. When satisfied, set TEST_MODE=false."
 echo
-echo "6. Schedule it in the Unraid User Scripts plugin."
+echo "7. Schedule it in the Unraid User Scripts plugin."
 echo
 echo "   Recommended cron schedule: 0 2 * * *"
 echo

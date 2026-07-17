@@ -4,21 +4,34 @@
 #
 # Frigate Archive Uninstaller
 #
-# Version : 2.1.0
 # Author  : Jonathan Dalcin
 # License : MIT
 #
 ############################################################
 
+set -u
+
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VERSION_FILE="$PROJECT_DIR/VERSION"
 
 CONFIG_FILE="$PROJECT_DIR/config.conf"
 LOG_DIR="$PROJECT_DIR/logs"
 BACKUP_DIR="$PROJECT_DIR/backups"
 
+############################################################
+# Load version
+############################################################
+
+if [ -f "$VERSION_FILE" ]; then
+    VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
+else
+    VERSION="unknown"
+fi
+
 echo
 echo "============================================================"
 echo " Frigate Archive Uninstaller"
+echo " Version $VERSION"
 echo "============================================================"
 echo
 
@@ -46,6 +59,52 @@ case "$ANSWER" in
 esac
 
 echo
+echo "Scanning runtime files..."
+
+############################################################
+# Count runtime files
+############################################################
+
+LOG_COUNT=0
+BACKUP_COUNT=0
+LOCK_COUNT=0
+
+if [ -d "$LOG_DIR" ]; then
+    LOG_COUNT=$(
+        find "$LOG_DIR" \
+            -maxdepth 1 \
+            -type f \
+            ! -name ".gitkeep" \
+            2>/dev/null |
+        wc -l
+    )
+fi
+
+if [ -d "$BACKUP_DIR" ]; then
+    BACKUP_COUNT=$(
+        find "$BACKUP_DIR" \
+            -maxdepth 1 \
+            -type f \
+            ! -name ".gitkeep" \
+            2>/dev/null |
+        wc -l
+    )
+fi
+
+LOCK_COUNT=$(
+    find /tmp \
+        -maxdepth 1 \
+        -type f \
+        -name 'frigate_archive*.lock' \
+        2>/dev/null |
+    wc -l
+)
+
+echo "Logs found            : $LOG_COUNT"
+echo "Project backups found : $BACKUP_COUNT"
+echo "Lock files found      : $LOCK_COUNT"
+
+echo
 echo "Cleaning runtime files..."
 
 ############################################################
@@ -53,30 +112,40 @@ echo "Cleaning runtime files..."
 ############################################################
 
 if [ -d "$LOG_DIR" ]; then
-    find "$LOG_DIR" -type f ! -name ".gitkeep" -delete
-    echo "Logs removed."
+    find "$LOG_DIR" \
+        -maxdepth 1 \
+        -type f \
+        ! -name ".gitkeep" \
+        -delete
 fi
 
 ############################################################
-# Remove backups
+# Remove project backups
 ############################################################
 
 if [ -d "$BACKUP_DIR" ]; then
-    find "$BACKUP_DIR" -type f ! -name ".gitkeep" -delete
-    echo "Database backups removed."
+    find "$BACKUP_DIR" \
+        -maxdepth 1 \
+        -type f \
+        ! -name ".gitkeep" \
+        -delete
 fi
 
 ############################################################
-# Remove lock file
+# Remove lock files
 ############################################################
 
-rm -f /tmp/frigate_archive*.lock
-
-echo "Lock files removed."
+find /tmp \
+    -maxdepth 1 \
+    -type f \
+    -name 'frigate_archive*.lock' \
+    -delete 2>/dev/null
 
 ############################################################
 # Configuration
 ############################################################
+
+CONFIG_STATUS="Not present"
 
 if [ -f "$CONFIG_FILE" ]; then
 
@@ -87,25 +156,39 @@ if [ -f "$CONFIG_FILE" ]; then
     case "$REMOVE_CONFIG" in
         y|Y|yes|YES)
             rm -f "$CONFIG_FILE"
-            echo "Configuration removed."
+            CONFIG_STATUS="Removed"
             ;;
         *)
-            echo "Configuration preserved."
+            CONFIG_STATUS="Preserved"
             ;;
     esac
 
 fi
 
+############################################################
+# Summary
+############################################################
+
 echo
 echo "============================================================"
-echo " Uninstall Complete"
+echo " Uninstall Summary"
+echo " Frigate Archive $VERSION"
 echo "============================================================"
 echo
-echo "The project files remain on disk."
+echo "Logs removed           : $LOG_COUNT"
+echo "Project backups removed: $BACKUP_COUNT"
+echo "Lock files removed     : $LOCK_COUNT"
+echo "Configuration          : $CONFIG_STATUS"
+echo "Project source code    : Preserved"
+echo "Frigate container      : Preserved"
+echo "Frigate database       : Preserved"
+echo "Live recordings        : Preserved"
+echo "Archived recordings    : Preserved"
 echo
-echo "To completely remove Frigate Archive simply delete:"
+echo "The project files remain at:"
 echo
 echo "  $PROJECT_DIR"
 echo
-echo "Your recordings and Frigate installation have NOT been modified."
+echo "To remove the project completely, manually delete that"
+echo "directory only after confirming you no longer need it."
 echo
