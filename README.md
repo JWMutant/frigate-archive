@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/banner.png" alt="Frigate Archive Banner">
+</p>
+
 <div align="center">
 
 # 📦 Frigate Archive
