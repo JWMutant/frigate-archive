@@ -1,0 +1,167 @@
+name: Validate Frigate Archive
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate project
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Display project version
+        run: |
+          echo "Frigate Archive version: $(cat VERSION)"
+
+      - name: Validate required files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          required_files=(
+            "VERSION"
+            "README.md"
+            "CHANGELOG.md"
+            "LICENSE"
+            "archive.sh"
+            "install.sh"
+            "uninstall.sh"
+            "healthcheck.sh"
+            "config.conf.example"
+            "modules/archive.sh"
+            "modules/checks.sh"
+            "modules/database_cleanup.sh"
+            "modules/logging.sh"
+            "modules/notifications.sh"
+            "modules/notify.sh"
+            "modules/transfer.sh"
+            "modules/utils.sh"
+            "modules/verify.sh"
+          )
+
+          missing=0
+
+          for file in "${required_files[@]}"
+          do
+            if [ -f "$file" ]; then
+              echo "[PASS] $file"
+            else
+              echo "::error file=$file::Required file is missing"
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Validate VERSION format
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version="$(tr -d '[:space:]' < VERSION)"
+
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error file=VERSION::VERSION must use MAJOR.MINOR.PATCH format"
+            exit 1
+          fi
+
+          echo "[PASS] VERSION format is valid: $version"
+
+      - name: Validate shell syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t scripts < <(
+            find . \
+              -type f \
+              -name '*.sh' \
+              -not -path './.git/*' \
+              | sort
+          )
+
+          if [ "${#scripts[@]}" -eq 0 ]; then
+            echo "::error::No shell scripts were found"
+            exit 1
+          fi
+
+          for script in "${scripts[@]}"
+          do
+            echo "Checking $script"
+            bash -n "$script"
+          done
+
+          echo "[PASS] All shell scripts passed syntax validation"
+
+      - name: Check for Windows line endings
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          bad_files=0
+
+          while IFS= read -r -d '' file
+          do
+            if grep -q $'\r' "$file"; then
+              echo "::error file=$file::Windows CRLF line endings detected"
+              bad_files=1
+            fi
+          done < <(
+            find . \
+              -type f \
+              \( -name '*.sh' -o -name '*.conf' -o -name '*.example' -o -name 'VERSION' \) \
+              -not -path './.git/*' \
+              -print0
+          )
+
+          if [ "$bad_files" -ne 0 ]; then
+            exit 1
+          fi
+
+          echo "[PASS] No Windows line endings detected"
+
+      - name: Validate README assets
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          required_assets=(
+            "assets/banner.png"
+            "assets/branding/logo.png"
+          )
+
+          missing=0
+
+          for asset in "${required_assets[@]}"
+          do
+            if [ -f "$asset" ]; then
+              echo "[PASS] $asset"
+            else
+              echo "::error file=$asset::Required branding asset is missing"
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Validation complete
+        run: |
+          echo "Frigate Archive validation completed successfully."
