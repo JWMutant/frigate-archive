@@ -1,0 +1,93 @@
+############################################################
+#
+# Frigate Archive
+# Example Configuration
+#
+# Copy this file to config.conf and adjust it for your system.
+#
+############################################################
+
+
+############################################################
+# Paths
+############################################################
+
+# Frigate recordings directory on the fast/local recording disk.
+SOURCE="/mnt/disks/cctv/recordings"
+
+# Long-term archive destination.
+ARCHIVE="/mnt/user/FrigateArchive"
+
+# Frigate Docker container name.
+CONTAINER="frigate"
+
+# Frigate SQLite database on the Unraid host.
+FRIGATE_DB="/mnt/user/appdata/frigate/frigate.db"
+
+
+############################################################
+# Archive Thresholds
+############################################################
+
+# Begin archiving when the recording disk reaches this
+# percentage of used space.
+START_THRESHOLD=60
+
+# Continue archiving completed days until disk usage falls
+# below this percentage.
+STOP_THRESHOLD=40
+
+
+############################################################
+# Database and Log Retention
+############################################################
+
+# Number of Frigate database backups to retain.
+DB_BACKUP_KEEP=7
+
+# Number of archive log files to retain.
+KEEP_LOGS=30
+
+
+############################################################
+# Notifications
+############################################################
+
+# Enable Unraid notifications.
+ENABLE_NOTIFICATIONS=true
+
+# Title used for Unraid notifications.
+NOTIFICATION_TITLE="Frigate Archive"
+
+
+############################################################
+# Lock File
+############################################################
+
+# Prevents multiple archive jobs from running simultaneously.
+LOCKFILE="/tmp/frigate_archive_v2.lock"
+
+
+############################################################
+# Logging
+############################################################
+
+LOG_DIR="/boot/config/custom/frigate-archive/logs"
+
+LOGFILE="$LOG_DIR/archive_$(date +%F).log"
+
+
+############################################################
+# Safety
+############################################################
+
+# true:
+#   Performs transfer and verification testing while
+#   preserving the source recording directory.
+#
+# false:
+#   Live production mode. Verified source recordings may
+#   be removed after a successful archive transfer.
+#
+# New installations should begin in test mode.
+TEST_MODE=true
