@@ -4,13 +4,19 @@
 
 <div align="center">
 
+<img src="assets/branding/logo.png" alt="Frigate Archive Logo" width="180">
+
+<br><br>
+
+<img src="assets/banner.png" alt="Frigate Archive Banner">
+
+<br><br>
+
 # 📦 Frigate Archive
 
 ### Safe Automated Archiving for Frigate running on Unraid
 
 Automatically archive completed Frigate recordings to long-term storage while keeping the Frigate database synchronized.
-
----
 
 ![Platform](https://img.shields.io/badge/Platform-Unraid-red)
 ![Frigate](https://img.shields.io/badge/Frigate-0.17+-blue)
