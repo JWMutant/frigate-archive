@@ -15,6 +15,8 @@ PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VERSION_FILE="$PROJECT_DIR/VERSION"
 CONFIG_FILE="$PROJECT_DIR/config.conf"
 MODULE_DIR="$PROJECT_DIR/modules"
+RESTORE_MODULE_DIR="$MODULE_DIR/restore"
+RESTORE_CORE_DIR="$RESTORE_MODULE_DIR/core"
 
 ############################################################
 # Load version
@@ -226,6 +228,7 @@ check_command tr
 section "Project Files"
 
 check_file "$PROJECT_DIR/archive.sh" "Main archive controller"
+check_file "$PROJECT_DIR/restore.sh" "Restore Wizard controller"
 check_file "$PROJECT_DIR/install.sh" "Installer"
 check_file "$PROJECT_DIR/uninstall.sh" "Uninstaller"
 check_file "$PROJECT_DIR/healthcheck.sh" "Health check utility"
@@ -248,6 +251,8 @@ if [ -f "$VERSION_FILE" ]; then
 fi
 
 check_directory "$MODULE_DIR" "Modules directory"
+check_directory "$RESTORE_MODULE_DIR" "Restore module directory"
+check_directory "$RESTORE_CORE_DIR" "Restore core directory"
 
 REQUIRED_MODULES=(
     "archive.sh"
@@ -261,9 +266,23 @@ REQUIRED_MODULES=(
     "verify.sh"
 )
 
+REQUIRED_RESTORE_MODULES=(
+    "core/checks.sh"
+    "core/context.sh"
+    "core/logging.sh"
+    "menu.sh"
+    "transfer.sh"
+    "verify.sh"
+)
+
 for module in "${REQUIRED_MODULES[@]}"
 do
     check_file "$MODULE_DIR/$module" "Module $module"
+done
+
+for module in "${REQUIRED_RESTORE_MODULES[@]}"
+do
+    check_file         "$RESTORE_MODULE_DIR/$module"         "Restore module $module"
 done
 
 ############################################################
@@ -273,6 +292,7 @@ done
 section "Shell Syntax"
 
 check_shell_syntax "$PROJECT_DIR/archive.sh" "archive.sh"
+check_shell_syntax "$PROJECT_DIR/restore.sh" "restore.sh"
 check_shell_syntax "$PROJECT_DIR/install.sh" "install.sh"
 check_shell_syntax "$PROJECT_DIR/uninstall.sh" "uninstall.sh"
 check_shell_syntax "$PROJECT_DIR/healthcheck.sh" "healthcheck.sh"
@@ -280,6 +300,11 @@ check_shell_syntax "$PROJECT_DIR/healthcheck.sh" "healthcheck.sh"
 for module in "${REQUIRED_MODULES[@]}"
 do
     check_shell_syntax "$MODULE_DIR/$module" "$module"
+done
+
+for module in "${REQUIRED_RESTORE_MODULES[@]}"
+do
+    check_shell_syntax         "$RESTORE_MODULE_DIR/$module"         "Restore $module"
 done
 
 ############################################################
@@ -521,6 +546,7 @@ fi
 
 SCRIPT_FILES=(
     "$PROJECT_DIR/archive.sh"
+    "$PROJECT_DIR/restore.sh"
     "$PROJECT_DIR/install.sh"
     "$PROJECT_DIR/uninstall.sh"
     "$PROJECT_DIR/healthcheck.sh"
@@ -534,6 +560,11 @@ done
 for module in "${REQUIRED_MODULES[@]}"
 do
     check_script_access "$MODULE_DIR/$module" "$module"
+done
+
+for module in "${REQUIRED_RESTORE_MODULES[@]}"
+do
+    check_script_access         "$RESTORE_MODULE_DIR/$module"         "Restore $module"
 done
 
 ############################################################
@@ -569,6 +600,34 @@ if [ -n "${LOCKFILE:-}" ]; then
         pass "No archive lock is currently active"
 
     fi
+
+fi
+
+RESTORE_LOCK="/tmp/frigate_archive_restore.lock"
+
+if [ -f "$RESTORE_LOCK" ]; then
+
+    RESTORE_PID=$(
+        awk -F= \
+            '/^PID=/{print $2}' \
+            "$RESTORE_LOCK" \
+            2>/dev/null
+    )
+
+    if [ -n "$RESTORE_PID" ] &&
+       kill -0 "$RESTORE_PID" 2>/dev/null; then
+
+        warn "Restore Wizard appears to be running with PID $RESTORE_PID"
+
+    else
+
+        warn "Stale Restore Wizard lock detected: $RESTORE_LOCK"
+
+    fi
+
+else
+
+    pass "No Restore Wizard lock is currently active"
 
 fi
 

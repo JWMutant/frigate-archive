@@ -23,9 +23,17 @@ BACKUP_DIR="$PROJECT_DIR/backups"
 ############################################################
 
 if [ -f "$VERSION_FILE" ]; then
+
     VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
+
+    if [ -z "$VERSION" ]; then
+        VERSION="unknown"
+    fi
+
 else
+
     VERSION="unknown"
+
 fi
 
 echo
@@ -36,6 +44,8 @@ echo "============================================================"
 echo
 
 echo "This utility removes Frigate Archive runtime files."
+echo "This includes runtime files used by both the Archive Engine"
+echo "and the Restore Wizard."
 echo
 echo "The following WILL NOT be touched:"
 echo
@@ -43,6 +53,8 @@ echo "  - Frigate Docker container"
 echo "  - Frigate recordings"
 echo "  - Archived recordings"
 echo "  - Frigate database"
+echo "  - Archive Engine source code"
+echo "  - Restore Wizard source code"
 echo "  - Project source code"
 echo
 
@@ -70,6 +82,7 @@ BACKUP_COUNT=0
 LOCK_COUNT=0
 
 if [ -d "$LOG_DIR" ]; then
+
     LOG_COUNT=$(
         find "$LOG_DIR" \
             -maxdepth 1 \
@@ -78,9 +91,11 @@ if [ -d "$LOG_DIR" ]; then
             2>/dev/null |
         wc -l
     )
+
 fi
 
 if [ -d "$BACKUP_DIR" ]; then
+
     BACKUP_COUNT=$(
         find "$BACKUP_DIR" \
             -maxdepth 1 \
@@ -89,6 +104,7 @@ if [ -d "$BACKUP_DIR" ]; then
             2>/dev/null |
         wc -l
     )
+
 fi
 
 LOCK_COUNT=$(
@@ -100,23 +116,25 @@ LOCK_COUNT=$(
     wc -l
 )
 
-echo "Logs found            : $LOG_COUNT"
-echo "Project backups found : $BACKUP_COUNT"
-echo "Lock files found      : $LOCK_COUNT"
+echo "Archive/Restore logs found : $LOG_COUNT"
+echo "Project backups found      : $BACKUP_COUNT"
+echo "Archive/Restore locks found: $LOCK_COUNT"
 
 echo
 echo "Cleaning runtime files..."
 
 ############################################################
-# Remove logs
+# Remove Archive and Restore logs
 ############################################################
 
 if [ -d "$LOG_DIR" ]; then
+
     find "$LOG_DIR" \
         -maxdepth 1 \
         -type f \
         ! -name ".gitkeep" \
         -delete
+
 fi
 
 ############################################################
@@ -124,15 +142,17 @@ fi
 ############################################################
 
 if [ -d "$BACKUP_DIR" ]; then
+
     find "$BACKUP_DIR" \
         -maxdepth 1 \
         -type f \
         ! -name ".gitkeep" \
         -delete
+
 fi
 
 ############################################################
-# Remove lock files
+# Remove Archive and Restore lock files
 ############################################################
 
 find /tmp \
@@ -150,17 +170,27 @@ CONFIG_STATUS="Not present"
 if [ -f "$CONFIG_FILE" ]; then
 
     echo
+    echo "config.conf is shared by the Archive Engine and Restore Wizard."
 
-    read -rp "Remove config.conf? (y/N): " REMOVE_CONFIG
+    read -rp "Remove the shared config.conf? (y/N): " REMOVE_CONFIG
 
     case "$REMOVE_CONFIG" in
         y|Y|yes|YES)
+
             rm -f "$CONFIG_FILE"
-            CONFIG_STATUS="Removed"
+
+            if [ -f "$CONFIG_FILE" ]; then
+                CONFIG_STATUS="Removal failed"
+            else
+                CONFIG_STATUS="Removed"
+            fi
             ;;
+
         *)
+
             CONFIG_STATUS="Preserved"
             ;;
+
     esac
 
 fi
@@ -175,15 +205,17 @@ echo " Uninstall Summary"
 echo " Frigate Archive $VERSION"
 echo "============================================================"
 echo
-echo "Logs removed           : $LOG_COUNT"
-echo "Project backups removed: $BACKUP_COUNT"
-echo "Lock files removed     : $LOCK_COUNT"
-echo "Configuration          : $CONFIG_STATUS"
-echo "Project source code    : Preserved"
-echo "Frigate container      : Preserved"
-echo "Frigate database       : Preserved"
-echo "Live recordings        : Preserved"
-echo "Archived recordings    : Preserved"
+echo "Archive/Restore logs removed : $LOG_COUNT"
+echo "Project backups removed      : $BACKUP_COUNT"
+echo "Archive/Restore locks removed: $LOCK_COUNT"
+echo "Configuration                : $CONFIG_STATUS"
+echo "Project source code          : Preserved"
+echo "Archive Engine               : Preserved"
+echo "Restore Wizard               : Preserved"
+echo "Frigate container            : Preserved"
+echo "Frigate database             : Preserved"
+echo "Live recordings              : Preserved"
+echo "Archived recordings          : Preserved"
 echo
 echo "The project files remain at:"
 echo

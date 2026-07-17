@@ -2,101 +2,208 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is inspired by **Keep a Changelog**, and this project follows **Semantic Versioning** (`MAJOR.MINOR.PATCH`).
+The format is based on Keep a Changelog and this project follows Semantic Versioning.
 
 ---
 
-# [2.0.0] - 2026-07-17
+## [2.2.0] - 2026-07-17
 
-## Initial Production Release
+### 🚀 Major Features
 
-Frigate Archive V2.0.0 is the first stable production release of the project.
+#### Restore Wizard
 
-This version introduces a modular, safety-first archive system designed specifically for Frigate running on Unraid.
+Introduced a fully interactive Restore Wizard for restoring archived Frigate recordings.
 
----
+Features include:
 
-## Added
-
-### Archive Management
-
-- Automatic recording archive management
-- Configurable archive thresholds
-- Oldest completed day selection
-- Lock file protection
-- Test mode
-
-### Transfer Engine
-
-- High-performance `rsync` transfer engine
+- Interactive archive browser
+- Date-based restore selection
+- Archive statistics
+- Restore preview before execution
+- Recording-drive free-space validation
+- Configurable restore safety margin
 - Automatic destination creation
-- Resume capability
-- Transfer verification
-- Safe deletion only after successful verification
-
-### Database Management
-
-- Automatic Frigate database backup
-- Database synchronization
-- Recording cleanup
-- Timeline cleanup
-- Preview cleanup
-- Review segment cleanup
-- SQLite VACUUM optimisation
-- Automatic verification after cleanup
-- Configurable backup retention
-
-### Logging
-
-- Comprehensive logging
-- Progress reporting
-- Error reporting
-- Verification reporting
-
-### Configuration
-
-- Central configuration file
-- Configurable thresholds
-- Configurable backup retention
-- Notification support
-- Modular architecture
+- Safe merge into existing recording folders
+- Checksum verification after transfer
+- Detailed restore logging
+- Automatic restore lock management
+- Graceful cancellation handling
 
 ---
 
-## Fixed
+### 🏗 Architecture
 
-- Verification of existing archives
-- Multi-camera archive handling
-- Database cleanup reliability
-- Transfer verification logic
-- Archive verification logic
-- Backup management
-- Cleanup reporting
-- Lock handling
+Added a dedicated modular Restore subsystem.
 
----
+```
+modules/
+└── restore/
+    ├── core/
+    │   ├── checks.sh
+    │   ├── context.sh
+    │   └── logging.sh
+    │
+    ├── menu.sh
+    ├── transfer.sh
+    └── verify.sh
+```
 
-## Performance
-
-- Significantly reduced verification time
-- Improved rsync performance
-- Reduced database size through automatic VACUUM
-- Optimised archive workflow
-
----
-
-## Notes
-
-This release has been tested with:
-
-- Unraid
-- Docker
-- Frigate 0.17.x
-- Multiple camera configurations
-- Existing archive detection
-- Archive verification
-- Automatic database cleanup
+The Restore Wizard is now separated into logical components for easier maintenance and future expansion.
 
 ---
 
-[2.0.0]: Initial production release
+### ⚙ Installer
+
+Improved installation process.
+
+- Installer now validates Restore Wizard.
+- Validates Restore module directory.
+- Validates Restore core directory.
+- Validates Restore controller.
+- Validates all Restore modules.
+- Recursive line-ending normalization.
+- Recursive syntax validation.
+- Improved installation summary.
+- Updated post-install instructions.
+
+---
+
+### 🩺 Health Check
+
+Expanded project validation.
+
+Health Check now verifies:
+
+- Restore controller
+- Restore module directory
+- Restore core directory
+- Restore module syntax
+- Restore script accessibility
+- Restore runtime lock state
+
+Project validation now covers the complete Archive and Restore subsystems.
+
+---
+
+### 🧹 Uninstaller
+
+Improved runtime cleanup.
+
+- Archive and Restore logs handled together.
+- Archive and Restore lock files cleaned.
+- Clearer configuration prompts.
+- Improved uninstall summary.
+- Better explanation of preserved data.
+
+---
+
+### 📖 Documentation
+
+Documentation significantly expanded.
+
+Added or updated:
+
+- README
+- CHANGELOG
+- CONTRIBUTING.md
+- SECURITY.md
+- Restore documentation
+- Restore workflow examples
+- Branding assets
+
+---
+
+### 🧪 Validation
+
+Project validation improvements include:
+
+- GitHub Actions validation
+- Recursive shell syntax checking
+- Installer validation
+- Restore validation
+- Health Check validation
+
+---
+
+### 🔒 Safety
+
+Restore operations now include:
+
+- Free-space validation
+- Read/write permission checks
+- Archive integrity checks
+- Destination validation
+- Checksum verification
+- Automatic lock handling
+- Safe cancellation
+- Archive preservation
+
+---
+
+### ⚠ Current Limitation
+
+The Restore Wizard restores **recording files only**.
+
+It does **not** recreate:
+
+- Frigate database records
+- Timeline entries
+- Review entries
+- Preview images
+- Recording metadata
+
+As a result, restored recordings may not immediately appear inside Frigate's Recordings or Review pages unless the database metadata also exists.
+
+This limitation is expected and documented.
+
+---
+
+### ✅ Testing
+
+Successfully validated using production data.
+
+Verified:
+
+- Archive browser
+- Date selection
+- Restore preview
+- Restore execution
+- Destination creation
+- Destination merge
+- File verification
+- Archive preservation
+- Lock cleanup
+- Health Check
+- Installer
+- Uninstaller
+
+---
+
+## [2.1.1] - Previous Release
+
+- Centralized version management
+- Health Check improvements
+- Installer improvements
+- Uninstaller improvements
+- Project validation improvements
+
+---
+
+## [2.1.0]
+
+- Added project installer
+- Added project uninstaller
+- Added Health Check
+- Improved archive validation
+- Centralized configuration
+
+---
+
+## [2.0.0]
+
+- Initial public release
+- Automatic archive engine
+- Database cleanup
+- Logging
+- Notifications
+- Threshold-based archiving
