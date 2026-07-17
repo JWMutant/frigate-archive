@@ -202,7 +202,6 @@ Example:
 
 ```text
 Overall Status: HEALTHY
-```
 ```html
 <p align="center">
   <img src="assets/screenshots/healthcheck.png" alt="Frigate Archive health check output">
