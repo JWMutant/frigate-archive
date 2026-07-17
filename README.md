@@ -210,8 +210,6 @@ Overall Status: HEALTHY
 
 ---
 
----
-
 # Safety Guarantees
 
 Frigate Archive removes source recordings only after:
