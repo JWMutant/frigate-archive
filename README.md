@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="assets/banner.png" alt="Frigate Archive Banner">
-</p>
-
 <div align="center">
 
 <img src="assets/branding/logo.png" alt="Frigate Archive Logo" width="180">
