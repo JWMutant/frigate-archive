@@ -105,10 +105,10 @@ Safe rsync Transfer
 Integrity Verification
           │
           ▼
-Database Cleanup
+Remove Original Recordings
           │
           ▼
-Remove Original Recordings
+Database Cleanup
           │
           ▼
 Archive Complete
@@ -204,14 +204,12 @@ Overall Status: HEALTHY
 
 # Safety Guarantees
 
-Frigate Archive never removes recordings until:
+Frigate Archive removes source recordings only after:
 
-- Archive transfer completes successfully
-- Verification confirms all files exist
-- Database cleanup succeeds
-- SQLite transaction commits successfully
+- The archive transfer completes successfully
+- Verification confirms the source files exist in the archive
 
-If any stage fails, the archive process stops immediately.
+Database cleanup then removes the archived day's stale Frigate records. A database backup is created before cleanup, and database changes are performed inside a transaction.
 
 ---
 
