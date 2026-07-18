@@ -14,7 +14,7 @@ Safely archive, restore, and manage Frigate recordings with verified transfers, 
 
 <img src="https://img.shields.io/github/license/JWMutant/frigate-archive?style=for-the-badge" alt="License">
 
-<img src="https://img.shields.io/github/actions/workflow/status/JWMutant/frigate-archive/shellcheck.yml?branch=main&style=for-the-badge" alt="ShellCheck">
+<img src="https://img.shields.io/github/actions/workflow/status/JWMutant/frigate-archive/validate.yml?branch=main&style=for-the-badge" alt="ShellCheck">
 
 <img src="https://img.shields.io/github/issues/JWMutant/frigate-archive?style=for-the-badge" alt="Issues">
 
