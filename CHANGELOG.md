@@ -4,6 +4,33 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and this project follows Semantic Versioning.
 
+## [2.3.0] - 2026-07-18
+
+### Added
+
+- Complete documentation library
+- Professional README overhaul
+- Getting Started guide
+- Installation guide
+- Configuration guide
+- Archive Engine guide
+- Restore Wizard guide
+- Health Check guide
+- Troubleshooting guide
+- Developer Guide
+- Frequently Asked Questions
+
+### Improved
+
+- Repository presentation
+- Documentation consistency
+- Navigation between guides
+- Project structure documentation
+
+### Changed
+
+- Documentation rewritten as a complete user manual
+- README redesigned as a project landing page
 ---
 
 ## [2.2.0] - 2026-07-17

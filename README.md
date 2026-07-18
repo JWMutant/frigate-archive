@@ -26,7 +26,7 @@ Safely archive, restore, and manage Frigate recordings with verified transfers, 
 
 > **Current Release**
 >
-> **Version 2.2.0** introduces the Restore Wizard, a fully modular project structure, improved installation tools, Health Check enhancements, and a comprehensive documentation library.
+> **Version 2.3.0** introduces the Restore Wizard, a fully modular project structure, improved installation tools, Health Check enhancements, and a comprehensive documentation library.
 
 ---
 
