@@ -9,39 +9,57 @@
 Safely archive, restore, and manage Frigate recordings with verified transfers, automated cleanup, and built-in health validation.
 
 <p>
-    <img src="https://img.shields.io/github/v/release/JWMutant/frigate-archive?style=for-the-badge" alt="Latest Release">
-    <img src="https://img.shields.io/github/license/JWMutant/frigate-archive?style=for-the-badge" alt="License">
-    <img src="https://img.shields.io/github/actions/workflow/status/JWMutant/frigate-archive/shellcheck.yml?branch=main&style=for-the-badge" alt="Build Status">
-    <img src="https://img.shields.io/github/issues/JWMutant/frigate-archive?style=for-the-badge" alt="Issues">
+
+<img src="https://img.shields.io/github/v/release/JWMutant/frigate-archive?style=for-the-badge" alt="Latest Release">
+
+<img src="https://img.shields.io/github/license/JWMutant/frigate-archive?style=for-the-badge" alt="License">
+
+<img src="https://img.shields.io/github/actions/workflow/status/JWMutant/frigate-archive/shellcheck.yml?branch=main&style=for-the-badge" alt="ShellCheck">
+
+<img src="https://img.shields.io/github/issues/JWMutant/frigate-archive?style=for-the-badge" alt="Issues">
+
 </p>
 
 </div>
 
 ---
 
-# Why Frigate Archive?
-
-Frigate performs best when recording to fast local storage such as an SSD or cache drive. Over time, however, continuous recording consumes available space and eventually requires manual cleanup or larger storage devices.
-
-Frigate Archive automates this process by safely moving completed recordings to long-term archive storage while preserving data integrity and keeping your recording storage available for new footage.
-
-Unlike simple copy scripts, Frigate Archive verifies every transfer before removing the original recordings, performs automatic Frigate database cleanup, validates your installation before every deployment, and provides an interactive Restore Wizard for recovering archived footage whenever you need it.
-
-Designed specifically for **Unraid** and **Frigate**, the project focuses on reliability, maintainability, and protecting your recordings throughout the archive lifecycle.
+> **Current Release**
+>
+> **Version 2.2.0** introduces the Restore Wizard, a fully modular project structure, improved installation tools, Health Check enhancements, and a comprehensive documentation library.
 
 ---
 
-# Features
+# Why Frigate Archive?
 
-| Feature | Description |
-|---------|-------------|
-| 📦 **Archive Engine** | Automatically archives recordings when storage reaches a configurable threshold. |
-| 🔄 **Restore Wizard** | Browse and restore archived recordings safely with checksum verification. |
-| ❤️ **Health Check** | Validate your installation, configuration, modules, and runtime environment. |
-| ⚙️ **Installer** | Guided installation and configuration validation. |
-| 🧹 **Uninstaller** | Safely remove runtime files while preserving recordings and configuration. |
-| 📝 **Detailed Logging** | Comprehensive logging for archive, restore, installer, and health operations. |
-| 🔒 **Safety First** | Verification, lock files, runtime validation, and conservative defaults help protect your recordings. |
+Frigate is exceptionally good at recording video.
+
+Managing those recordings over time is a different challenge.
+
+Continuous recording quickly fills fast SSD or cache storage, forcing administrators to manually move files, delete recordings, or purchase additional storage. Simple copy scripts solve part of the problem, but they rarely provide verification, database maintenance, logging, or safe recovery when something goes wrong.
+
+Frigate Archive was created to solve this problem.
+
+Instead of simply copying recordings, Frigate Archive provides a complete archive management toolkit designed specifically for **Frigate running on Unraid**.
+
+Every archive operation is verified before original recordings are removed. Every restore is validated before files are returned. Every major component is designed around one principle:
+
+> **Protect your recordings first.**
+
+---
+
+# Why Choose Frigate Archive?
+
+| | |
+|---|---|
+| 📦 **Automatic Archiving** | Moves completed recordings from recording storage to long-term archive storage. |
+| 🔄 **Interactive Restore Wizard** | Browse, preview, and safely restore archived recordings whenever required. |
+| ❤️ **Health Check** | Validate your installation, configuration, runtime environment, and project integrity. |
+| 🛡️ **Verification First** | Recordings are never deleted until transferred files have been successfully verified. |
+| 📝 **Professional Logging** | Archive, restore, installer, and Health Check operations generate detailed logs. |
+| ⚙️ **Guided Installation** | Installer validates project structure, configuration, runtime environment, and shell syntax. |
+| 🧹 **Runtime Cleanup** | Remove runtime files without affecting recordings or archived data. |
+| 🧩 **Modular Architecture** | Archive Engine and Restore Wizard are organised into reusable modules for easier maintenance. |
 
 ---
 
@@ -71,7 +89,7 @@ Validate the installation:
 bash healthcheck.sh
 ```
 
-Run a test archive:
+Perform a test archive:
 
 ```bash
 bash archive.sh
@@ -85,16 +103,17 @@ bash restore.sh
 
 > **Tip**
 >
-> Leave `TEST_MODE=true` until you've verified that your configuration and archive workflow are working correctly.
+> Keep `TEST_MODE=true` until you've completed your initial testing. Test Mode allows the complete archive workflow to be validated without moving recordings or modifying the Frigate database.
 
 ---
 
-# How It Works
+# At a Glance
 
 ```mermaid
 flowchart LR
 
 A[Frigate Recording Storage]
+
 --> B[Archive Engine]
 
 B --> C[Archive Storage]
@@ -108,79 +127,119 @@ B --> E[Health Check]
 E --> B
 ```
 
-Frigate Archive continuously monitors your recording storage. When the configured threshold is reached, the Archive Engine safely transfers older recordings to archive storage, verifies every transfer, cleans the Frigate database, and returns the recording storage to a healthy operating level.
+Frigate Archive continuously monitors recording storage usage. When the configured threshold is reached, the Archive Engine safely transfers older recordings to archive storage, verifies every transferred file, performs database cleanup, and returns recording storage to a healthy operating level.
 
-Whenever archived footage is required, the Restore Wizard provides a guided, interactive restore process with built-in validation and checksum verification.
+Whenever archived footage is needed, the Restore Wizard provides an interactive workflow that validates available storage, restores recordings, verifies file integrity, and preserves the archived copy for future use.
 
 ---
 
 # Documentation
 
-Comprehensive documentation is available in the `docs/` directory.
+Frigate Archive includes a comprehensive documentation library covering installation, configuration, operation, troubleshooting, and development.
+
+Whether you're installing the project for the first time or contributing new features, the documentation is designed to guide you through every stage.
 
 | Guide | Description |
 |-------|-------------|
-| [Getting Started](docs/getting-started.md) | Install, configure, and test Frigate Archive in minutes. |
-| [Installation](docs/installation.md) | Complete installation and upgrade guide. |
-| [Configuration](docs/configuration.md) | Configure paths, thresholds, Test Mode, and runtime options. |
-| [Archive Engine](docs/archive-engine.md) | Learn how automatic archiving works. |
-| [Restore Wizard](docs/restore-wizard.md) | Restore archived recordings safely with verification. |
-| [Health Check](docs/healthcheck.md) | Validate your installation and diagnose problems. |
-| [Troubleshooting](docs/troubleshooting.md) | Resolve common issues and understand error messages. |
-| [Developer Guide](docs/developer-guide.md) | Project architecture, coding standards, and release process. |
-| [FAQ](docs/faq.md) | Frequently asked questions and best practices. |
+| 📖 [Getting Started](docs/getting-started.md) | Install and test Frigate Archive in just a few minutes. |
+| ⚙️ [Installation](docs/installation.md) | Complete installation, upgrade, and deployment guide. |
+| 🔧 [Configuration](docs/configuration.md) | Configure paths, thresholds, Test Mode, and runtime options. |
+| 📦 [Archive Engine](docs/archive-engine.md) | Learn how automatic archiving works and why it is designed this way. |
+| 🔄 [Restore Wizard](docs/restore-wizard.md) | Restore archived recordings safely using the interactive wizard. |
+| ❤️ [Health Check](docs/healthcheck.md) | Validate your installation and diagnose common problems. |
+| 🩺 [Troubleshooting](docs/troubleshooting.md) | Follow a structured workflow for resolving issues. |
+| 👨‍💻 [Developer Guide](docs/developer-guide.md) | Project architecture, coding standards, and release process. |
+| ❓ [FAQ](docs/faq.md) | Answers to frequently asked questions from real-world use. |
 
 ---
 
 # Project Philosophy
 
-Frigate Archive was designed around four core principles.
+Every design decision in Frigate Archive is guided by four core principles.
 
 ## 🛡️ Safety
 
-Recordings are never removed until transfers have been successfully verified.
+Protect recordings above everything else.
 
-Every major operation is designed to minimise the risk of accidental data loss.
+Archive and restore operations always favour preserving data over speed or convenience.
+
+Verification is performed before destructive actions, and multiple safeguards are built into every workflow.
 
 ---
 
 ## ✅ Reliability
 
-Archive and restore operations include multiple validation steps before making changes.
+Operations should behave consistently every time they run.
 
-Health Check verifies the environment before problems become failures.
+Validation, logging, runtime protection, and Health Check all work together to make the project predictable and dependable.
 
 ---
 
 ## 🧩 Maintainability
 
-The project uses a modular architecture that separates archive, restore, installer, and validation logic into focused components.
+The project is intentionally modular.
 
-This makes the project easier to maintain, extend, and troubleshoot.
+Archive operations, restore operations, logging, validation, notifications, and supporting utilities are separated into focused components, making the codebase easier to understand and extend.
 
 ---
 
 ## 🔍 Transparency
 
-Every major operation is logged with clear, meaningful output.
+Software should explain what it is doing.
 
-When something goes wrong, Frigate Archive should explain **what happened** and **why**.
+Frigate Archive produces clear logging, meaningful status messages, and detailed Health Check output so administrators always understand what is happening.
 
 ---
 
 # Core Components
 
+Frigate Archive consists of five primary components.
+
 | Component | Purpose |
 |-----------|---------|
-| 📦 Archive Engine | Automatically archives recordings based on configurable storage thresholds. |
-| 🔄 Restore Wizard | Interactively restores archived recordings with verification. |
-| ❤️ Health Check | Validates the installation, project structure, runtime environment, and Git repository. |
-| ⚙️ Installer | Prepares the project for first use and validates configuration. |
-| 🧹 Uninstaller | Removes runtime files while preserving recordings and user data. |
+| 📦 **Archive Engine** | Automatically archives recordings when recording storage reaches the configured threshold. |
+| 🔄 **Restore Wizard** | Safely restores archived recordings while preserving the archive copy. |
+| ❤️ **Health Check** | Performs comprehensive validation of the installation, runtime environment, configuration, and project integrity. |
+| ⚙️ **Installer** | Guides first-time setup and validates the project before use. |
+| 🧹 **Uninstaller** | Removes runtime components while preserving recordings and user configuration. |
 
 ---
 
-# Project Structure
+# Architecture
+
+```mermaid
+flowchart TD
+
+A[Recording Storage]
+
+--> B[Archive Engine]
+
+B --> C[Verification]
+
+C --> D[Archive Storage]
+
+D --> E[Restore Wizard]
+
+E --> F[Verification]
+
+F --> A
+
+B --> G[Database Cleanup]
+
+G --> H[Health Check]
+```
+
+The Archive Engine manages recordings leaving the recording drive.
+
+The Restore Wizard manages recordings returning from archive storage.
+
+Health Check validates the environment before either process runs, helping identify problems before they interrupt normal operation.
+
+---
+
+# Repository Layout
+
+The repository is organised into a small number of top-level components.
 
 ```text
 frigate-archive/
@@ -189,71 +248,76 @@ frigate-archive/
 ├── install.sh
 ├── uninstall.sh
 ├── healthcheck.sh
-├── VERSION
-├── CHANGELOG.md
-├── README.md
-├── CONTRIBUTING.md
-├── SECURITY.md
-├── LICENSE
-├── config.conf.example
-│
 ├── docs/
-│   ├── getting-started.md
-│   ├── installation.md
-│   ├── configuration.md
-│   ├── archive-engine.md
-│   ├── restore-wizard.md
-│   ├── healthcheck.md
-│   ├── troubleshooting.md
-│   ├── developer-guide.md
-│   └── faq.md
-│
 ├── modules/
-│   ├── archive/
-│   └── restore/
-│
 └── assets/
 ```
+
+Most users only interact with the scripts in the project root.
+
+Developers can find the implementation details inside the `modules/` directory.
 
 ---
 
 # Installation Overview
 
-Install Frigate Archive in four simple steps.
+Installing Frigate Archive typically follows five simple steps.
 
 ```mermaid
 flowchart LR
 
 A[Clone Repository]
+
 --> B[Run Installer]
 
-B --> C[Configure config.conf]
+--> C[Review Configuration]
 
-C --> D[Run Health Check]
+--> D[Run Health Check]
 
-D --> E[Start Archiving]
+--> E[Begin Archiving]
 ```
 
-Detailed installation instructions are available in the **Getting Started** and **Installation** guides.
+Most users can complete the installation in only a few minutes.
+
+For detailed instructions, see the **Getting Started** and **Installation** guides.
 
 ---
 
 # Safety Features
 
-Frigate Archive is designed with a **safety-first** philosophy. Before any archive or restore operation modifies your data, multiple validation steps are performed to help protect your recordings.
+Protecting your recordings is the highest priority.
 
-| Safety Feature | Purpose |
-|---------------|---------|
+Every archive and restore operation is designed to minimise the risk of data loss through multiple layers of validation and verification.
+
+| Feature | Description |
+|---------|-------------|
 | ✅ Verification Before Deletion | Original recordings are never removed until transferred files have been successfully verified. |
-| 🔒 Runtime Lock Files | Prevents multiple archive or restore operations from running simultaneously. |
-| ❤️ Health Check | Detects configuration and runtime problems before they cause failures. |
-| 📋 Detailed Logging | Records every significant action for troubleshooting and auditing. |
-| 🧪 Test Mode | Allows the complete archive workflow to be validated without moving recordings or modifying the Frigate database. |
-| 🗄️ Database Cleanup | Removes stale Frigate database entries after successful archive operations. |
+| 🔒 Runtime Lock Protection | Prevents multiple archive or restore operations from running simultaneously. |
+| ❤️ Health Check Validation | Identifies configuration and runtime problems before they interrupt archive operations. |
+| 📋 Detailed Logging | Every significant operation is recorded for auditing and troubleshooting. |
+| 🧪 Test Mode | Safely validates the complete archive workflow without moving recordings or modifying the Frigate database. |
+| 🗄️ Automatic Database Cleanup | Removes stale Frigate database references after successful archive operations. |
+
+---
+
+# Compatibility
+
+Frigate Archive is currently developed and tested using the following environment.
+
+| Component | Supported |
+|----------|-----------|
+| Unraid | ✅ Supported |
+| Frigate | ✅ Supported |
+| Docker | ✅ Supported |
+| Bash | ✅ Supported |
+
+Support for additional Linux distributions may be considered in future releases but is not currently an official project goal.
 
 ---
 
 # Roadmap
+
+The project continues to evolve with a focus on reliability, maintainability, and ease of use.
 
 ## Completed
 
@@ -262,34 +326,19 @@ Frigate Archive is designed with a **safety-first** philosophy. Before any archi
 - ✅ Installer
 - ✅ Uninstaller
 - ✅ Health Check
-- ✅ Documentation Library
+- ✅ Modular architecture
+- ✅ Comprehensive documentation library
+- ✅ ShellCheck integration
 - ✅ GitHub Actions
-- ✅ ShellCheck Integration
-- ✅ Professional Project Structure
 
 ## Planned
 
 - 📸 Project screenshots
-- 🎨 Enhanced Mermaid workflow diagrams
-- 🧩 Shared `modules/common/` framework
+- 🌐 GitHub Pages documentation
 - 🗄️ Optional Frigate metadata restoration
+- 🧩 Shared `modules/common/` framework
 - 🧪 Expanded automated testing
-- 🌐 GitHub Pages documentation site
-
----
-
-# Compatibility
-
-Frigate Archive is currently developed and tested on:
-
-| Component | Supported |
-|----------|-----------|
-| Unraid | ✅ |
-| Frigate | ✅ |
-| Docker | ✅ |
-| Bash | ✅ |
-
-Support for other Linux distributions may be considered in future releases but is not currently an official project goal.
+- 🚀 Additional archive and restore enhancements
 
 ---
 
@@ -297,12 +346,14 @@ Support for other Linux distributions may be considered in future releases but i
 
 Contributions are welcome.
 
-If you would like to report a bug, suggest an enhancement, or contribute code, please review the following documents before opening a Pull Request:
+Whether you're reporting a bug, improving documentation, or contributing new features, your help is appreciated.
+
+Before submitting a Pull Request, please review:
 
 - [Contributing Guide](CONTRIBUTING.md)
 - [Security Policy](SECURITY.md)
 
-Please run the following before submitting changes:
+Please validate your changes before submitting:
 
 ```bash
 bash healthcheck.sh
@@ -310,48 +361,69 @@ bash healthcheck.sh
 find . -name "*.sh" -exec bash -n {} \;
 ```
 
-This helps ensure that new contributions meet the project's quality standards.
+This helps maintain the quality and reliability of the project.
 
 ---
 
 # Support
 
-If you experience a problem:
+If you experience a problem, follow this process before opening an issue.
 
-1. Run:
+1. Run the Health Check.
 
 ```bash
 bash healthcheck.sh
 ```
 
-2. Review the generated log output.
+2. Review the generated output.
 
-3. Consult the documentation in the `docs/` directory.
+3. Consult the documentation.
 
 4. Search existing GitHub Issues.
 
-5. If the problem persists, open a new GitHub Issue using the Bug Report template.
+5. Open a new issue if the problem has not already been reported.
 
-Providing the Health Check summary and relevant log output will greatly assist with troubleshooting.
+When reporting a problem, please include:
+
+- Frigate Archive version
+- Unraid version
+- Frigate version
+- Health Check summary
+- Relevant log output
+- Steps to reproduce the issue
+
+Providing this information helps reproduce and resolve issues more quickly.
 
 ---
 
 # License
 
-This project is licensed under the MIT License.
+Frigate Archive is released under the MIT License.
 
-See the [LICENSE](LICENSE) file for details.
+See the [LICENSE](LICENSE) file for the full license text.
+
+---
+
+# Acknowledgements
+
+Frigate Archive would not exist without the excellent work of the Frigate and Unraid communities.
+
+Their projects provide the foundation that makes Frigate Archive possible.
+
+Thank you to everyone who has tested the project, reported bugs, suggested improvements, and contributed ideas during its development.
 
 ---
 
 <div align="center">
 
-**Frigate Archive**
+# Frigate Archive
 
-Archive and Restore Toolkit for Frigate on Unraid
+### Archive and Restore Toolkit for Frigate on Unraid
 
-Built with reliability, safety, and maintainability in mind.
+**Reliable. Safe. Modular.**
 
-If this project has been helpful, consider giving it a ⭐ on GitHub.
+Built to make long-term Frigate recording management simple and dependable.
+
+⭐ If Frigate Archive has been useful to you, please consider starring the repository.
 
 </div>
