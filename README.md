@@ -27,6 +27,7 @@ Automatically archive completed Frigate recordings to long-term storage and safe
 Frigate Archive is a production-ready toolkit built specifically for **Frigate running on Unraid**.
 
 It provides a complete workflow for managing recordings:
+The project is designed to be modular, production-ready, and easy to maintain, with dedicated tools for installation, archiving, restoration, validation, and ongoing maintenance.
 
 -   📦 Archive Engine
 -   🔄 Restore Wizard
@@ -154,6 +155,24 @@ bash restore.sh
 
 ---
 
+# 📚 Documentation
+
+Whether you're installing Frigate Archive for the first time or looking for advanced configuration, the documentation library has you covered.
+
+| Guide | Description |
+|-------|-------------|
+| [Getting Started](docs/getting-started.md) | Install, configure, and test Frigate Archive in minutes. |
+| [Installation](docs/installation.md) | Detailed installation and upgrade instructions. |
+| [Configuration](docs/configuration.md) | Configure paths, thresholds, notifications, and runtime options. |
+| [Archive Engine](docs/archive-engine.md) | Learn how automatic archiving works and how to schedule it. |
+| [Restore Wizard](docs/restore-wizard.md) | Restore archived recordings safely with verification. |
+| [Health Check](docs/healthcheck.md) | Validate your installation and diagnose problems. |
+| [Troubleshooting](docs/troubleshooting.md) | Resolve common issues and common error messages. |
+| [FAQ](docs/faq.md) | Frequently asked questions and best practices. |
+| [Developer Guide](docs/developer-guide.md) | Contributing, project structure, and development workflow. |
+
+---
+
 # Configuration
 
 Edit `config.conf` and configure:
@@ -230,10 +249,10 @@ frigate-archive/
 
 ## Planned
 
-- Documentation site (`docs/`)
-- Flagship README improvements
-- Screenshots
+- Complete documentation library
+- Project screenshots
 - Mermaid workflow diagrams
+- Dynamic GitHub badges
 - Shared common module framework
 - Enhanced restore metadata support
 - Optional notification providers
